@@ -1,0 +1,9 @@
+gcc -Wall -Wstrict-prototypes   -g -I..   -c -o rs.o rs.c
+gcc -Wall -Wstrict-prototypes   -g -I..   -c -o galois.o galois.c
+gcc -Wall -Wstrict-prototypes   -g -I..   -c -o berlekamp.o berlekamp.c
+gcc -Wall -Wstrict-prototypes   -g -I..   -c -o crcgen.o crcgen.c
+rm -f libecc.a
+ar cq libecc.a rs.o galois.o berlekamp.o crcgen.o 
+if [ "ranlib" ]; then ranlib libecc.a; fi
+gcc -Wall -Wstrict-prototypes   -g -I..   -c -o example.o example.c
+gcc -o example example.o -L. -lecc
