@@ -50,16 +50,53 @@
 unsigned char msg[] = "Nervously I loaded the twin ducks aboard the revolving pl\
 atform.";
 unsigned char codeword[256];
- 
+
+enum code
+{
+	ERR_OK = 0,
+	ERR_INCORECT_INPUT,
+	ERR_CANT_OPEN_INPUT,
+	ERR_CANT_OPEN_OUTPUT,
+	ERR_ELSE
+};
+
 /* Function for print error message */
 void error_msg(int err_code)
 {
-	if(err_code == 1)
+	if(err_code == ERR_INCORECT_INPUT)
 		fprintf(stderr, "Incorect input!\n");
-	else if (err_code == 2)
+	else if (err_code == ERR_CANT_OPEN_INPUT)
 		fprintf(stderr, "Can't open input file!\n");
-	else if (err_code == 3)
+	else if (err_code == ERR_CANT_OPEN_OUTPUT)
 		fprintf(stderr, "Can't create output file!\n");	
+}
+
+/* Argument exist test*/
+void check_args(int argc)
+{
+	if(argc != 2)
+	{
+		error_msg(ERR_INCORECT_INPUT);
+		exit(EXIT_FAILURE);
+	}
+}
+
+void check_inputFile(FILE *fp)
+{
+	if(fp == NULL)
+	{
+		error_msg(ERR_CANT_OPEN_INPUT);
+		exit(EXIT_FAILURE);
+	}	
+}
+
+void check_outputFile(FILE *fp)
+{
+	if(fp == NULL)
+	{
+		error_msg(ERR_CANT_OPEN_OUTPUT);
+		exit(EXIT_FAILURE);
+	}	
 }
 
 /* Function for concatenate two strings*/
@@ -95,26 +132,27 @@ byte_erasure (int loc, unsigned char dst[], int cwsize, int erasures[])
   dst[loc-1] = 0;
 }
 
-
-int
-main (int argc, char *argv[])
+long unsigned int get_file_size(FILE *fp)
 {
-	char *source = NULL;		// buffer for file
-	/* Argument exist test*/
-	if(argc != 2)
-	{
-		error_msg(1);
-		exit(EXIT_FAILURE);
+	if (fseek(fp, 0L, SEEK_END) == 0) {
+		/* Get the size of the file. */
+		return ftell(fp);
 	}
-	FILE *fp = fopen (argv[1], "r");
+	else
+		return 0;
+}
+
+char *fillBuffer(FILE *fp)
+{
 	/* Fileopen test*/
 	if(fp == NULL)
 	{
-		error_msg(2);
+		error_msg(ERR_CANT_OPEN_INPUT);
 		exit(EXIT_FAILURE);
 	}
 	else
-	{	
+	{
+		char *source = NULL;
 		/* Reading file in buffer */
 		/* Go to the end of the file. */
 		/* http://stackoverflow.com/questions/2029103/correct-way-to-read-a-text-file-into-a-buffer-in-c */
@@ -137,21 +175,70 @@ main (int argc, char *argv[])
 				source[newLen++] = '\0'; /* Just to be safe. */
 			}
 		}
-		fclose(fp);
+		
+		printf("%s",source);
+		return source;
 	}
-	printf("%s",source);
-		 
+}
+
+
+int
+main (int argc, char *argv[])
+{
+	char *source = NULL;		// buffer for file
+	/* Argument exist test*/
+	check_args(argc);
+	
+	FILE *fp = fopen (argv[1], "r");
+	/* Fileopen test*/
+	check_inputFile(fp);
+	printf("size -> %lu\n",get_file_size(fp));
+	
 	/* Open/create output file*/
 	FILE *outputFile = fopen(concat(argv[1],".out"),"w+");
-	if(fp == NULL)
-	{
-		error_msg(3);
-		exit(EXIT_FAILURE);
-	}
-	/* Write encoded data into output file */
-	fputs(source,outputFile);
-	printf("Zapsáno!\n");
+	check_outputFile(outputFile);	
+		 
+	
+	source = fillBuffer(fp);
+	long unsigned int len = get_file_size(fp);
+	fclose(fp);
+	
+	int cols = 3;
+	int rows = len/cols;
 
+	for (int i = 1; i <= len; i++)
+	{
+		
+		printf("%c", source[i-1]);
+		if (i != 0 && i%cols == 0)
+			printf("\n");
+	}
+	
+	
+	printf("\n\n\n");
+	
+	
+	for (int y = 0; y < cols; y++)
+	{
+		for (int x = 0; x < rows; x++)
+		{
+
+			printf("%c", source[x*cols+y]);
+			/* Write encoded data into output file */
+			fputc(source[x*cols+y],outputFile);			
+		}	
+		printf("\n");
+	}
+	
+	printf("\n");	
+	
+	
+
+
+	printf("Zapsáno!\n");
+	fclose(outputFile);
+
+	
 	int erasures[16];
 	int nerasures = 0;
 
