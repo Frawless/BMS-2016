@@ -49,7 +49,7 @@
  
 unsigned char msg[] = "Nervously I loaded the twin ducks aboard the revolving pl\
 atform.";
-unsigned char codeword[256];
+unsigned char codeword[16];
 
 enum code
 {
@@ -142,7 +142,7 @@ long unsigned int get_file_size(FILE *fp)
 		return 0;
 }
 
-char *fillBuffer(FILE *fp)
+unsigned char *fillBuffer(FILE *fp)
 {
 	/* Fileopen test*/
 	if(fp == NULL)
@@ -152,7 +152,7 @@ char *fillBuffer(FILE *fp)
 	}
 	else
 	{
-		char *source = NULL;
+		unsigned char *source = NULL;
 		/* Reading file in buffer */
 		/* Go to the end of the file. */
 		/* http://stackoverflow.com/questions/2029103/correct-way-to-read-a-text-file-into-a-buffer-in-c */
@@ -176,7 +176,7 @@ char *fillBuffer(FILE *fp)
 			}
 		}
 		
-		printf("%s",source);
+		printf("ToEncode: %s\n",source);
 		return source;
 	}
 }
@@ -185,17 +185,16 @@ char *fillBuffer(FILE *fp)
 int
 main (int argc, char *argv[])
 {
-	char *source = NULL;		// buffer for file
+	unsigned char *source = NULL;		// buffer for file
 	/* Argument exist test*/
 	check_args(argc);
 	
 	FILE *fp = fopen (argv[1], "r");
 	/* Fileopen test*/
 	check_inputFile(fp);
-	printf("size -> %lu\n",get_file_size(fp));
 	
 	/* Open/create output file*/
-	FILE *outputFile = fopen(concat(argv[1],".out"),"w+");
+	FILE *outputFile = fopen(concat(argv[1],".out"),"wb");
 	check_outputFile(outputFile);	
 		 
 	
@@ -203,88 +202,137 @@ main (int argc, char *argv[])
 	long unsigned int len = get_file_size(fp);
 	fclose(fp);
 	
-	int cols = 3;
-	int rows = len/cols;
-
-	for (int i = 1; i <= len; i++)
+	/* RScode library init */
+	initialize_ecc ();
+	
+	/* Parse input file to 15/9b */
+	unsigned char *aux = malloc(sizeof(char) * (len+1));
+	memset(aux,0,sizeof(char) * (len+1));	
+	unsigned int byteCnt = 0;
+	printf("Size of aux: %d\n",sizeof(codeword));
+	for(int x = 0; x < len; x++)
 	{
-		
-		printf("%c", source[i-1]);
-		if (i != 0 && i%cols == 0)
-			printf("\n");
-	}
-	
-	
-	printf("\n\n\n");
-	
-	
-	for (int y = 0; y < cols; y++)
-	{
-		for (int x = 0; x < rows; x++)
+		aux[byteCnt] = source[x];
+		if(byteCnt == sizeof(aux))
 		{
-
-			printf("%c", source[x*cols+y]);
-			/* Write encoded data into output file */
-			fputc(source[x*cols+y],outputFile);			
-		}	
-		printf("\n");
+			printf("Encode!\n");
+			encode_data(aux, sizeof(char) * (len+1), codeword);
+			for(int i = 0; i < 15; i++)
+			{
+				fprintf(outputFile, "%c",codeword[i]);
+			}
+			memset(aux,0,sizeof(char) * (len+1));
+			byteCnt = 0;
+		}
+		else
+			byteCnt++;		
+	}
+	// Zbytek v aux je také třeba zakódovat (poslední rámec)
+	if(byteCnt != 0)
+	{
+		encode_data(aux, sizeof(aux), codeword);
+		for(int i = 0; i < 15; i++)
+		{
+			fprintf(outputFile, "%c",codeword[i]);
+		}
 	}
 	
-	printf("\n");	
 	
-	
-
-
+//###################################################
+	/* Shuffle prokládání */
+//	int cols = 3;
+//	int rows = len/cols;
+//
+//	for (int i = 1; i <= len; i++)
+//	{
+//		
+//		printf("%c", source[i-1]);
+//		if (i != 0 && i%cols == 0)
+//			printf("\n");
+//	}
+//	
+//	int i = 0;
+//	for (int y = 0; y < cols; y++)
+//	{
+//		for (int x = 0; x < rows; x++)
+//		{
+//			/* Write encoded data into output file */
+//			aux[i] = source[x*cols+y];
+//			if(i == sizeof(aux))
+//			{
+//				printf("Encode!\n");
+//				encode_data(aux, sizeof(char) * (len+1), codeword);
+//				for(int i = 0; i < 15; i++)
+//				{
+//					fprintf(outputFile, "%c",codeword[i]);
+//				}
+//				memset(aux,0,sizeof(char) * (len+1));
+//				i = 0;
+//			}
+//			else
+//				i++;
+//		}	
+//	}
+//	// If aux not clear
+//	if(i != 0)
+//	{
+//		encode_data(aux, sizeof(aux), codeword);
+//		for(int i = 0; i < 15; i++)
+//		{
+//			fprintf(outputFile, "%c",codeword[i]);
+//		}
+//	}
+//###################################################	
 	printf("Zapsáno!\n");
 	fclose(outputFile);
 
 	
-	int erasures[16];
-	int nerasures = 0;
+//	int erasures[16];
+//	int nerasures = 0;
+//
+//	/* Initialization the ECC library */
+//
+//	initialize_ecc ();
+//
+//	/* ************** */
+//
+//	/* Encode data into codeword, adding NPAR parity bytes */
+//	encode_data(msg, sizeof(msg), codeword);
+//
+//	printf("Encoded data is: \"%s\"\n", codeword);
+//
+//  #define ML (sizeof (msg) + NPAR)
+//
+//
+//	/* Add one error and two erasures */
+//	byte_err(0x35, 3, codeword);
+//
+//	byte_err(0x23, 17, codeword);
+//	byte_err(0x34, 19, codeword);
+//
+//
+//	printf("with some errors: \"%s\"\n", codeword);
+//
+//	/* We need to indicate the position of the erasures.  Eraseure
+//	   positions are indexed (1 based) from the end of the message... */
+//
+//	erasures[nerasures++] = ML-17;
+//	erasures[nerasures++] = ML-19;
+//
+//
+//	/* Now decode -- encoded codeword size must be passed */
+//	decode_data(codeword, ML);
+//
+//	/* check if syndrome is all zeros */
+//	if (check_syndrome () != 0) {
+//	  correct_errors_erasures (codeword, 
+//				   ML,
+//				   nerasures, 
+//				   erasures);
+//
+//	  printf("Corrected codeword: \"%s\"\n", codeword);
+//	}
 
-	/* Initialization the ECC library */
-
-	initialize_ecc ();
-
-	/* ************** */
-
-	/* Encode data into codeword, adding NPAR parity bytes */
-	encode_data(msg, sizeof(msg), codeword);
-
-	printf("Encoded data is: \"%s\"\n", codeword);
-
-  #define ML (sizeof (msg) + NPAR)
-
-
-	/* Add one error and two erasures */
-	byte_err(0x35, 3, codeword);
-
-	byte_err(0x23, 17, codeword);
-	byte_err(0x34, 19, codeword);
-
-
-	printf("with some errors: \"%s\"\n", codeword);
-
-	/* We need to indicate the position of the erasures.  Eraseure
-	   positions are indexed (1 based) from the end of the message... */
-
-	erasures[nerasures++] = ML-17;
-	erasures[nerasures++] = ML-19;
-
-
-	/* Now decode -- encoded codeword size must be passed */
-	decode_data(codeword, ML);
-
-	/* check if syndrome is all zeros */
-	if (check_syndrome () != 0) {
-	  correct_errors_erasures (codeword, 
-				   ML,
-				   nerasures, 
-				   erasures);
-
-	  printf("Corrected codeword: \"%s\"\n", codeword);
-	}
-
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
 
