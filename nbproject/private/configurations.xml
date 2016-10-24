@@ -11,7 +11,7 @@
         <in>rs.c</in>
       </df>
       <in>bms1A.c</in>
-      <in>bms1B.C</in>
+      <in>bms1B.c</in>
     </df>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>

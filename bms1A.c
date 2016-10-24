@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "lib/ecc.h"
  
 unsigned char msg[] = "Nervously I loaded the twin ducks aboard the revolving pl\
@@ -203,25 +204,35 @@ main (int argc, char *argv[])
 	fclose(fp);
 	
 	/* RScode library init */
-	initialize_ecc ();
+	initialize_ecc();
 	
 	/* Parse input file to 15/9b */
 	unsigned char *aux = malloc(sizeof(char) * (len+1));
-	memset(aux,0,sizeof(char) * (len+1));	
+	memset(aux,0,sizeof(char) * (9+1));	
 	unsigned int byteCnt = 0;
-	printf("Size of aux: %d\n",sizeof(codeword));
+	bool tmp = true;
 	for(int x = 0; x < len; x++)
 	{
 		aux[byteCnt] = source[x];
 		if(byteCnt == sizeof(aux))
 		{
-			printf("Encode!\n");
-			encode_data(aux, sizeof(char) * (len+1), codeword);
-			for(int i = 0; i < 15; i++)
+			printf("aux-> \'%s\'\n",aux);
+			//printf("Encode!\n");
+			encode_data(aux, sizeof(aux)+1, codeword);
+			printf("cod-> \'%s\'\n",codeword);
+			// Simulace chyby
+			if(tmp)
 			{
+				byte_err(0x23, 6, codeword);
+				printf("err-> %s\n",codeword);
+			}
+			tmp = false;			
+			// Simulace chyby
+			for(int i = 0; i < 15; i++)
+			{	
 				fprintf(outputFile, "%c",codeword[i]);
 			}
-			memset(aux,0,sizeof(char) * (len+1));
+			memset(aux,0,sizeof(char) * (9+1));
 			byteCnt = 0;
 		}
 		else
@@ -230,11 +241,13 @@ main (int argc, char *argv[])
 	// Zbytek v aux je také třeba zakódovat (poslední rámec)
 	if(byteCnt != 0)
 	{
-		encode_data(aux, sizeof(aux), codeword);
-		for(int i = 0; i < 15; i++)
-		{
-			fprintf(outputFile, "%c",codeword[i]);
-		}
+		encode_data(aux, sizeof(aux)+1, codeword);
+		printf("cod-> %s\n",codeword);
+		fwrite(codeword,sizeof(char),15,outputFile);
+//		for(int i = 0; i < 15; i++)
+//		{
+//			fprintf(outputFile, "%c",codeword[i]);
+//		}
 	}
 	
 	
