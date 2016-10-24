@@ -1,0 +1,5 @@
+/test.py
+*.out
+*.ok
+*.dat
+/test.dat.out.ref

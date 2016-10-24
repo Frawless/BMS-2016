@@ -15,7 +15,6 @@ main (int argc, char *argv[])
 	FILE *outputFile = fopen(concat(argv[1],".ok"),"wb");
 	check_outputFile(outputFile);	
 		 
-	
 	source = fillBuffer(fp);
 	long unsigned int len = get_file_size(fp);
 	fclose(fp);
@@ -32,108 +31,52 @@ main (int argc, char *argv[])
 	unsigned char *aux = malloc(sizeof(char) * (NLENGTH+1));
 	printf("size len: %ld\n",sizeof(aux));
 	memset(aux,0,sizeof(char) * (NLENGTH+1));	
-	unsigned int byteCnt = 0;
-	
-
-	//#########################
-	//erasures[nerasures++] = len - 6;
-	//#########################
 	
 	for(int x = 0; x < len; x++)
 	{
 		//printf("len: %ld\n",len);
-		#define ML 9 + NPAR)
+		#define ML KLENGHT + NPAR)
 		if (x%NLENGTH == 0)
 		{
-
+//			printf("x: %d\n",x);
+//			printf("NLENGTH+1: %d\n",NLENGTH+1);
 			memset(aux,0,sizeof(char) * (NLENGTH+1));
 			memcpy(aux,&source[x],NLENGTH);
+
+//			printf("Source: %c%c%c%c%c%c%c%c%c\n",source[173],source[174],source[175],source[176],source[177],source[178],source[179],source[180],source[181]);
 			int tmp = (int)(strchr((char*)aux,'\0')-(char*)aux);	// Výpočet pozice '\0'
-			int writeLen = ((tmp >= NLENGTH) ? (NLENGTH-NPAR) : tmp);			// Výpočet počtu bitů pro zápis
+			int writeLen = ((tmp >= KLENGHT) ? KLENGHT : tmp);			// Výpočet počtu bitů pro zápis
 //			printf("writeLen: %d/%d/%d\n",tmp, writeLen, 15-NPAR);			
 //			printf("index: %d\n",(int)(strchr((char*)aux,'\0')-(char*)aux));
-//			printf("(%d-%d): %s\n",x,x+15-1,aux);
+			printf("(%d-%d): %s\n",x,x+15-1,aux);
 			
-			decode_data(aux, NLENGTH);
+			int decodeLenght = (tmp >= KLENGHT) ? NLENGTH : tmp + NPAR;
+//			printf("tmp: %d\n",tmp);
+//			printf("decodeLength: %d\n",decodeLenght);
+//			printf("aux: |%s|\n",aux);
+			decode_data(aux, decodeLenght);
+//			printf("aux: %s\n",aux);
 			//###################################
 			/* check if syndrome is all zeros */
 			if (check_syndrome () != 0) {
 			  correct_errors_erasures (aux, 
 						   NLENGTH,
-						   nerasures, 
-						   erasures);
+						   0, 
+						   NULL);
 
-			  printf("Corrected codeword: \"%s\"\n", aux);
+			  printf("Corrected codeword: |%s|\n", aux);
 			}	
-			printf("D(%d-%d): %s\n",x,x+NLENGTH-1,aux);
+			printf("D(%d-%d): |%s|\n",x,x+NLENGTH-1,aux);
 			//###################################			
 //			fprintf(outputFile, "%c",aux[i]);
 //			fprintf(outputFile, "%c",aux);
 			fwrite(aux,sizeof(char),writeLen, outputFile);
-			printf("Zápis -> %s\n",aux);
+			printf("Zápis -> |%s|\n",aux);
 		}
-		
-////		printf("byteCnt: %d\n",byteCnt);
-//		aux[byteCnt] = source[x];
-//		if(byteCnt == 14)
-//		{
-//			printf("test: |%c|",aux[11]);
-//			printf("Uncorected: \"%s\"\n",aux);
-////			printf("Encode!\n");
-//			decode_data(aux, 15);
-//			
-//			//###################################
-//			/* check if syndrome is all zeros */
-//			if (check_syndrome () != 0 && 'N' == aux[0]) {
-//				printf("%s\n",aux);
-//			  correct_errors_erasures (aux, 
-//						   15,
-//						   nerasures, 
-//						   erasures);
-//
-//			  printf("Corrected codeword: \"%s\"\n", aux);
-//			}	
-//			//###################################
-//			
-//			//encode_data(aux, sizeof(char) * (len+1), codeword);
-//			for(int i = 0; i < 9; i++)
-//			{
-//				printf("%c",aux[i]);
-////				printf("i: %d\n",i);
-//				if(aux[i] == '\0')
-//				{
-////					printf("i: %d\n",i);
-////					printf("break\n");
-//					break;				
-//				}
-//				fprintf(outputFile, "%c",aux[i]);
-//			}
-//			printf("\n");
-//			memset(aux,0,sizeof(char) * (15+1));
-//			byteCnt = 0;
-//		}
-//		else if(byteCnt == 16)
-//		{
-//			byteCnt = 0;
-//			printf("\n");
-//		}
-//		else
-//			byteCnt++;		
 	}
-	// Zbytek v aux je také třeba zakódovat (poslední rámec)
-//	if(byteCnt != 0)
-//	{
-//		decode_data(aux, 15);
-//		for(int i = 0; i < 9; i++)
-//		{
-//			printf("x\n");
-//			fprintf(outputFile, "%c",aux[i]);
-//		}
-//	}	
 	
-	/* Now decode -- encoded codeword size must be passed */
-	//decode_data(codeword, ML);
-	
-	
+	fclose(outputFile);
+	free(aux);
+	free(source);
 	exit(EXIT_SUCCESS);
 }

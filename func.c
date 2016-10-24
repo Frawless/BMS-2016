@@ -125,8 +125,6 @@ unsigned char *fillBuffer(FILE *fp)
 				source[newLen++] = '\0'; /* Just to be safe. */
 			}
 		}
-		
-		printf("Buffer: %s\n",source);
 		return source;
 	}
 }

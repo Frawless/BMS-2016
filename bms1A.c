@@ -60,7 +60,6 @@ main (int argc, char *argv[])
 	FILE *outputFile = fopen(concat(argv[1],".out"),"wb");
 	check_outputFile(outputFile);	
 		 
-	
 	source = fillBuffer(fp);
 	long unsigned int len = get_file_size(fp);
 	fclose(fp);
@@ -70,34 +69,19 @@ main (int argc, char *argv[])
 	
 	/* Parse input file to 15/9b */
 	unsigned char *aux = malloc(sizeof(char) * (len+1));
-	memset(aux,0,sizeof(char) * (9+1));	
+	memset(aux,0,sizeof(char) * (KLENGHT+1));	
 	unsigned int byteCnt = 0;
-	bool tmp = true;
 	for(int x = 0; x < len; x++)
 	{
 		aux[byteCnt] = source[x];
 		if(byteCnt == sizeof(aux))
 		{
-			printf("aux-> \'%s\'\n",aux);
-			//printf("Encode!\n");
 			encode_data(aux, sizeof(aux)+1, codeword);
-			printf("cod-> \'%s\'\n",codeword);
-			// Simulace chyby
-			if(tmp)
-			{
-				byte_err(0x23, 6, codeword);
-				byte_err(0x23, 8, codeword);
-				byte_err(0x23, 1, codeword);
-				printf("err-> %s\n",codeword);
-			}
-			tmp = false;			
-			// Simulace chyby
-			for(int i = 0; i < 15; i++)
-			{	
-				fprintf(outputFile, "%c",codeword[i]);
-			}
-			memset(aux,0,sizeof(char) * (9+1));
+
+			fwrite(codeword,sizeof(char),NLENGTH,outputFile);
+			memset(aux,0,sizeof(char) * (KLENGHT+1));
 			byteCnt = 0;
+			printf("cod-> |%s|\n",codeword);
 		}
 		else
 			byteCnt++;		
@@ -105,15 +89,12 @@ main (int argc, char *argv[])
 	// Zbytek v aux je také třeba zakódovat (poslední rámec)
 	if(byteCnt != 0)
 	{
+		printf("size of aux: %ld\n",sizeof(aux));
 		encode_data(aux, sizeof(aux)+1, codeword);
-		printf("cod-> %s\n",codeword);
-		fwrite(codeword,sizeof(char),15,outputFile);
-//		for(int i = 0; i < 15; i++)
-//		{
-//			fprintf(outputFile, "%c",codeword[i]);
-//		}
+		
+		printf("cod-> |%s|\n",codeword);
+		fwrite(codeword,sizeof(char),byteCnt+1+NPAR,outputFile);
 	}
-	
 	
 //###################################################
 	/* Shuffle prokládání */
@@ -162,53 +143,8 @@ main (int argc, char *argv[])
 //###################################################	
 	printf("Zapsáno!\n");
 	fclose(outputFile);
-
-	
-//	int erasures[16];
-//	int nerasures = 0;
-//
-//	/* Initialization the ECC library */
-//
-//	initialize_ecc ();
-//
-//	/* ************** */
-//
-//	/* Encode data into codeword, adding NPAR parity bytes */
-//	encode_data(msg, sizeof(msg), codeword);
-//
-//	printf("Encoded data is: \"%s\"\n", codeword);
-//
-//  #define ML (sizeof (msg) + NPAR)
-//
-//
-//	/* Add one error and two erasures */
-//	byte_err(0x35, 3, codeword);
-//
-//	byte_err(0x23, 17, codeword);
-//	byte_err(0x34, 19, codeword);
-//
-//
-//	printf("with some errors: \"%s\"\n", codeword);
-//
-//	/* We need to indicate the position of the erasures.  Eraseure
-//	   positions are indexed (1 based) from the end of the message... */
-//
-//	erasures[nerasures++] = ML-17;
-//	erasures[nerasures++] = ML-19;
-//
-//
-//	/* Now decode -- encoded codeword size must be passed */
-//	decode_data(codeword, ML);
-//
-//	/* check if syndrome is all zeros */
-//	if (check_syndrome () != 0) {
-//	  correct_errors_erasures (codeword, 
-//				   ML,
-//				   nerasures, 
-//				   erasures);
-//
-//	  printf("Corrected codeword: \"%s\"\n", codeword);
-//	}
+	free(aux);
+	free(source);
 
 	exit(EXIT_SUCCESS);
 }

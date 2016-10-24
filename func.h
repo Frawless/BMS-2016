@@ -26,6 +26,7 @@ extern "C" {
  
 /* Lenght of codeword */
 #define NLENGTH	15	
+#define KLENGHT 9
 /* Codeword */
 unsigned char codeword[16];
 
