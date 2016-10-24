@@ -18,9 +18,9 @@ DEBUG_FLAGS = -g
 CFLAGS = -Wall -Wstrict-prototypes  $(OPTIMIZE_FLAGS) $(DEBUG_FLAGS) -I..
 LDFLAGS = $(OPTIMIZE_FLAGS) $(DEBUG_FLAGS)
 
-LIB_CSRC = $(LIB)rs.c $(LIB)galois.c $(LIB)berlekamp.c $(LIB)crcgen.c 
-LIB_HSRC = $(LIB)ecc.h
-LIB_OBJS = $(LIB)rs.o $(LIB)galois.o $(LIB)berlekamp.o $(LIB)crcgen.o 
+LIB_CSRC = $(LIB)rs.c $(LIB)galois.c $(LIB)berlekamp.c $(LIB)crcgen.c func.c 
+LIB_HSRC = $(LIB)ecc.h func.h
+LIB_OBJS = $(LIB)rs.o $(LIB)galois.o $(LIB)berlekamp.o $(LIB)crcgen.o func.o
 
 TARGET_LIB = libecc.a
 TEST_PROGS = bms1A bms1B
@@ -34,10 +34,10 @@ $(TARGET_LIB): $(LIB_OBJS)
 	$(AR) cq $@ $(LIB_OBJS)
 	if [ "$(RANLIB)" ]; then $(RANLIB) $@; fi
 
-bms1A: bms1A.o $(LIB)galois.o $(LIB)berlekamp.o $(LIB)crcgen.o $(LIB)rs.o
+bms1A: bms1A.o $(LIB)galois.o $(LIB)berlekamp.o $(LIB)crcgen.o $(LIB)rs.o func.o
 	gcc -o bms1A bms1A.o -L. -lecc
 	
-bms1B: bms1B.o $(LIB)galois.o $(LIB)berlekamp.o $(LIB)crcgen.o $(LIB)rs.o
+bms1B: bms1B.o $(LIB)galois.o $(LIB)berlekamp.o $(LIB)crcgen.o $(LIB)rs.o func.o
 	gcc -o bms1B bms1B.o -L. -lecc	
 
 clean:

@@ -12,6 +12,8 @@
       </df>
       <in>bms1A.c</in>
       <in>bms1B.c</in>
+      <in>func.c</in>
+      <in>func.h</in>
     </df>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
