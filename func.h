@@ -26,7 +26,7 @@ extern "C" {
  
 /* Lenght of codeword */
 #define NLENGTH	15	
-#define KLENGHT 9
+#define KLENGTH 9
 /* Codeword */
 unsigned char codeword[16];
 
@@ -60,6 +60,8 @@ void byte_erasure (int loc, unsigned char dst[], int cwsize, int erasures[]);
 long unsigned int get_file_size(FILE *fp);
 /* Function for load bytes from file in buffer */
 unsigned char *fillBuffer(FILE *fp);
+/* Function for get new file size */
+int get_new_size(int size);
 
 #ifdef __cplusplus
 }

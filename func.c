@@ -128,3 +128,9 @@ unsigned char *fillBuffer(FILE *fp)
 		return source;
 	}
 }
+
+int get_new_size(int size)
+{
+	int tmp = size%KLENGTH;
+	return(tmp > 0 ? (((size/KLENGTH)*NLENGTH)+tmp+NPAR+1) : ((size/KLENGTH)*NLENGTH));
+}

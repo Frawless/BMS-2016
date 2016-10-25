@@ -69,7 +69,9 @@ main (int argc, char *argv[])
 	
 	/* Parse input file to 15/9b */
 	unsigned char *aux = malloc(sizeof(char) * (len+1));
-	memset(aux,0,sizeof(char) * (KLENGHT+1));	
+	printf("NewSize: %d\n",get_new_size(len));
+	printf("LEN: %\n",len);
+	memset(aux,0,sizeof(char) * (KLENGTH+1));	
 	unsigned int byteCnt = 0;
 	for(int x = 0; x < len; x++)
 	{
@@ -79,21 +81,26 @@ main (int argc, char *argv[])
 			encode_data(aux, sizeof(aux)+1, codeword);
 
 			fwrite(codeword,sizeof(char),NLENGTH,outputFile);
-			memset(aux,0,sizeof(char) * (KLENGHT+1));
+			memset(aux,0,sizeof(char) * (KLENGTH+1));
+			memset(codeword,0,sizeof(char) * NLENGTH);
 			byteCnt = 0;
 			printf("cod-> |%s|\n",codeword);
 		}
 		else
+		{
+			printf("auxByte: |%c|\n",aux[byteCnt]);
 			byteCnt++;		
+		}
 	}
 	// Zbytek v aux je také třeba zakódovat (poslední rámec)
 	if(byteCnt != 0)
 	{
-		printf("size of aux: %ld\n",sizeof(aux));
-		encode_data(aux, sizeof(aux)+1, codeword);
+		printf("size of aux: %ld\n",byteCnt);
+		printf("aux: %s\n",aux);
+		encode_data(aux, byteCnt, codeword);  //NEKODUHE SE
 		
 		printf("cod-> |%s|\n",codeword);
-		fwrite(codeword,sizeof(char),byteCnt+1+NPAR,outputFile);
+		fwrite(codeword,sizeof(char),byteCnt+NPAR,outputFile);
 	}
 	
 //###################################################
