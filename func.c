@@ -130,38 +130,123 @@ unsigned char *fillBuffer(FILE *fp)
 }
 
 /* Function for get new file size */
-int get_new_size(int size)
+long unsigned int get_new_size(int size)
 {
 	int tmp = size%KLENGTH;
 	return(tmp > 0 ? (((size/KLENGTH)*NLENGTH)+tmp+NPAR) : ((size/KLENGTH)*NLENGTH));
 }
 
 
-unsigned char *shuffle(unsigned char codeword[])
+void shuffle(unsigned char codeword[])
 {
-//	unsigned char aux_codeword[15];
-	unsigned char* aux_codeword = malloc(sizeof(unsigned char) * (15+1));
+	for(int x = 0, y = NLENGTH-1; x < KLENGTH; x+=2,y--)
+	{
+		printf("x: %d|y: %d\n",x,y);
+		char tmp;
+		tmp = codeword[x];
+		codeword[x] = codeword[y];
+		codeword[y] = tmp;
+	}
 	
-	aux_codeword[1] = codeword[14];
-	aux_codeword[4] = codeword[13];
-	aux_codeword[6] = codeword[12];
-	aux_codeword[9] = codeword[11];
-	aux_codeword[11] = codeword[10];
-	aux_codeword[14] = codeword[9];
-	aux_codeword[0] = codeword[8];
-	aux_codeword[2] = codeword[7];
-	aux_codeword[3] = codeword[6];
-	aux_codeword[5] = codeword[5];
-	aux_codeword[7] = codeword[4];
-	aux_codeword[8] = codeword[3];
-	aux_codeword[10] = codeword[2];
-	aux_codeword[12] = codeword[1];
-	aux_codeword[13] = codeword[0];
+//	aux_codeword[1] = codeword[14];
+//	aux_codeword[4] = codeword[13];
+//	aux_codeword[6] = codeword[12];
+//	aux_codeword[9] = codeword[11];
+//	aux_codeword[11] = codeword[10];
+//	aux_codeword[14] = codeword[9];
+//	aux_codeword[0] = codeword[8];
+//	aux_codeword[2] = codeword[7];
+//	aux_codeword[3] = codeword[6];
+//	aux_codeword[5] = codeword[5];
+//	aux_codeword[7] = codeword[4];
+//	aux_codeword[8] = codeword[3];
+//	aux_codeword[10] = codeword[2];
+//	aux_codeword[12] = codeword[1];
+//	aux_codeword[13] = codeword[0];
+}
+
+void deshuffle(unsigned char codeword[])
+{
+//	aux_codeword[14] = codeword[1];
+//	aux_codeword[13] = codeword[4];
+//	aux_codeword[12] = codeword[6];
+//	aux_codeword[11] = codeword[9];
+//	aux_codeword[10] = codeword[11];
+//	aux_codeword[9] = codeword[14];
+//	aux_codeword[8] = codeword[0];
+//	aux_codeword[7] = codeword[2];
+//	aux_codeword[6] = codeword[3];
+//	aux_codeword[5] = codeword[5];
+//	aux_codeword[4] = codeword[7];
+//	aux_codeword[3] = codeword[8];
+//	aux_codeword[2] = codeword[10];
+//	aux_codeword[1] = codeword[12];
+//	aux_codeword[0] = codeword[13];
+}
+
+
+void interleaving(unsigned char L1[], unsigned char L2[],long int size)
+{
+	printf("L1: %s\b",L1);
 	
-//	for(int x = 0; x < NLENGTH; x++)
-//	{
-//		aux_codeword[x] = codeword[x+1];
-//	}
+	int z = 0;
+	int h = 0;
+	for(int k = 0; k < size/(ROW*COL); k++)
+	{	
+		printf("k: %d\n", k);
+		for(int i = 0; i < ROW*COL; i++)
+		{			
+//			printf("%c",L1[(z%row)*col+z/row+p]);k/row*(row-1)
+//			printf("%c",shuffleArray[(z%row)*col+z/row+k*col*(row-1)]);
+//			printf("%d\n",(z%row)*col+z/row+k*col*(row-1));
+//			printf("%d%c ",z, L1[(z%COL)*ROW+(z/COL)+ (ROW*k)*(COL-1)]);
+			L2[z] = L1[(z%COL)*ROW+(z/COL)+ (ROW*k)*(COL-1)];
+			z++;
+			h++;
+//			if((i+1)%COL == 0)
+//				printf("\n");
+		}	
+		printf("\n");
+	}
+	for(int p = z; p < size; p++)
+	{
+//		printf("%c",shuffleArray[p]);
+		printf("%c",L1[p]);
+		L2[p] = L1[p];
+	}
+	printf("\n\n%s\n\n",L2);
+	printf("L2: %s|\n",L2);
+}
+
+void deinterleaving(unsigned char L1[], unsigned char L2[],long int size)
+{
+	printf("L1: %s\b",L1);
 	
-	return aux_codeword;
+	int z = 0;
+	int h = 0;
+	for(int k = 0; k < size/(ROW*COL); k++)
+	{	
+		printf("k: %d\n", k);
+		for(int i = 0; i < ROW*COL; i++)
+		{			
+//			printf("%c",L1[(z%row)*col+z/row+p]);k/row*(row-1)
+//			printf("%c",shuffleArray[(z%row)*col+z/row+k*col*(row-1)]);
+//			printf("%d\n",(z%row)*col+z/row+k*col*(row-1));
+//			printf("%d%c ",z, L1[(z%COL)*ROW+(z/COL)+ (ROW*k)*(COL-1)]);
+			L2[z] = L1[(z%ROW)*COL+(z/ROW)+ (COL*k)*(ROW-1)];
+			z++;
+			h++;
+//			if((i+1)%COL == 0)
+//				printf("\n");
+		}	
+		printf("\n");
+	}
+	for(int p = z; p < size; p++)
+	{
+//		printf("%c",shuffleArray[p]);
+		printf("%c",L1[p]);
+		L2[p] = L1[p];
+	}
+	printf("\n\n%s\n\n",L2);
+	printf("L2: %s\n",L2);
 }

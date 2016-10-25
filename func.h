@@ -27,6 +27,8 @@ extern "C" {
 /* Lenght of codeword */
 #define NLENGTH	15	
 #define KLENGTH 9
+#define ROW		10
+#define COL		10
 /* Codeword */
 unsigned char codeword[16];
 
@@ -61,9 +63,14 @@ long unsigned int get_file_size(FILE *fp);
 /* Function for load bytes from file in buffer */
 unsigned char *fillBuffer(FILE *fp);
 /* Function for get new file size */
-int get_new_size(int size);
+long unsigned int get_new_size(int size);
 
-unsigned char *shuffle(unsigned char codeword[]);
+void shuffle(unsigned char codeword[]);
+void deshuffle(unsigned char codeword[]);
+
+void interleaving(unsigned char L1[], unsigned char L2[],long int size);
+
+void deinterleaving(unsigned char L1[], unsigned char L2[],long int size);
 
 #ifdef __cplusplus
 }

@@ -11,12 +11,10 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/media/Data/VUT/1MIS/BMS/Projekt/SornaEncode/func.h</file>
-            <file>file:/media/Data/VUT/1MIS/BMS/Projekt/SornaEncode/test</file>
-            <file>file:/media/Data/VUT/1MIS/BMS/Projekt/SornaEncode/test.out.ok</file>
             <file>file:/media/Data/VUT/1MIS/BMS/Projekt/SornaEncode/Makefile</file>
             <file>file:/media/Data/VUT/1MIS/BMS/Projekt/SornaEncode/bms1A.c</file>
             <file>file:/media/Data/VUT/1MIS/BMS/Projekt/SornaEncode/bms1B.c</file>
-            <file>file:/media/Data/VUT/1MIS/BMS/Projekt/SornaEncode/test.out</file>
+            <file>file:/media/Data/VUT/1MIS/BMS/Projekt/SornaEncode/func.c</file>
         </group>
     </open-files>
 </project-private>

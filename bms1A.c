@@ -71,11 +71,11 @@ main (int argc, char *argv[])
 	unsigned char *aux = malloc(sizeof(char) * (len+1));
 	memset(aux,0,sizeof(char) * (KLENGTH+1));
 	/* Pole pro celý soubor */
-	unsigned char *shuffleArray = malloc(sizeof(char) * (get_new_size(len)));
+	long unsigned int newSize = get_new_size(len);
+	unsigned char encodedMsg[newSize+1];
+	unsigned char shufledEncodedMsg[newSize+1];
 	memset(aux,0,sizeof(char) * (NLENGTH+1));
 	
-	printf("NewSize: %d\n",get_new_size(len));
-	printf("LEN: %\n",len);
 	int move = 0;
 		
 	unsigned int byteCnt = 0;
@@ -86,11 +86,14 @@ main (int argc, char *argv[])
 		{
 			encode_data(aux, sizeof(aux)+1, codeword);
 //			fwrite(codeword,sizeof(char),NLENGTH,outputFile);
-			memmove(shuffleArray+move,shuffle(codeword),NLENGTH);
+			printf("codeword: |%s|\n",codeword);
+			shuffle(codeword);
+			printf("shufword: |%s|\n",codeword);
+//			shuffle(codeword);
+//			printf("reshword: |%s|\n",codeword);
+			memmove(encodedMsg+move,codeword,NLENGTH);
 //
 			byteCnt = 0;
-			//shuffle(codeword);
-			printf("cod-> |%s|\n",codeword);
 			move += NLENGTH;
 			
 			memset(aux,0,sizeof(char) * (KLENGTH+1));
@@ -105,71 +108,24 @@ main (int argc, char *argv[])
 	if(byteCnt != 0)
 	{
 		encode_data(aux, byteCnt, codeword);  //NEKODUHE SE
-		memmove(shuffleArray+move,codeword,byteCnt+NPAR);
+		//shuffle(codeword);
+		memmove(encodedMsg+move,codeword,byteCnt+NPAR);
 		
-		printf("cod-> |%s|\n",codeword);
 //		fwrite(codeword,sizeof(char),byteCnt+NPAR,outputFile);
 	}
 	
-	/** ###################### */
-	unsigned char L1[] = "abcdefghchijklmnopqrstuvwxyz";
-	unsigned char L2[32];
-	unsigned char L2[32];
-	
-	for(int i = 0; i < 32; i++)
-	{
-		printf("%c",L1[i]);
-	}
-	
-//###################################################
-	/* Shuffle prokládání */
-//	int cols = 3;
-//	int rows = len/cols;
-//
-//	for (int i = 1; i <= len; i++)
-//	{
-//		
-//		printf("%c", source[i-1]);
-//		if (i != 0 && i%cols == 0)
-//			printf("\n");
-//	}
-//	
-//	int i = 0;
-//	for (int y = 0; y < cols; y++)
-//	{
-//		for (int x = 0; x < rows; x++)
-//		{
-//			/* Write encoded data into output file */
-//			aux[i] = source[x*cols+y];
-//			if(i == sizeof(aux))
-//			{
-//				printf("Encode!\n");
-//				encode_data(aux, sizeof(char) * (len+1), codeword);
-//				for(int i = 0; i < 15; i++)
-//				{
-//					fprintf(outputFile, "%c",codeword[i]);
-//				}
-//				memset(aux,0,sizeof(char) * (len+1));
-//				i = 0;
-//			}
-//			else
-//				i++;
-//		}	
-//	}
-//	// If aux not clear
-//	if(i != 0)
-//	{
-//		encode_data(aux, sizeof(aux), codeword);
-//		for(int i = 0; i < 15; i++)
-//		{
-//			fprintf(outputFile, "%c",codeword[i]);
-//		}
-//	}
-//###################################################	
-	printf("Zapsáno!\n");
-	fclose(outputFile);
 	free(aux);
 	free(source);
+	/** INTERELAVING testy# */
+//	unsigned char L1[] = "abcdefghijklmnopqrstuvwxyz";
+//	deinterleaving(interleaving(L1,26),26);
+	interleaving(encodedMsg,shufledEncodedMsg,newSize);
+	printf("test\n");
+	
+	fwrite(shufledEncodedMsg,sizeof(char), newSize, outputFile);
+	
+	printf("\nZapsáno!\n");
+	fclose(outputFile);
 
 	exit(EXIT_SUCCESS);
 }

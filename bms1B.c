@@ -18,6 +18,8 @@ main (int argc, char *argv[])
 	source = fillBuffer(fp);
 	long unsigned int len = get_file_size(fp);
 	fclose(fp);
+	unsigned char encodedMsg[len+1];
+	deinterleaving(source, encodedMsg, len);
 	
 	/* RScode library init */
 	initialize_ecc();
@@ -27,6 +29,8 @@ main (int argc, char *argv[])
 	printf("size len: %ld\n",sizeof(aux));
 	memset(aux,0,sizeof(char) * (NLENGTH+1));	
 	int blocks = 0;
+	
+	
 	
 	for(int x = 0; x < len; x++)
 	{
@@ -38,12 +42,16 @@ main (int argc, char *argv[])
 			blocks++;
 
 			memset(aux,0,sizeof(char) * (NLENGTH+1));
-			memcpy(aux,&source[x],NLENGTH);
+			memcpy(aux,&encodedMsg[x],NLENGTH);
 			printf("(%d-%d): %s\n",x,x+15-1,aux);
 			
 			int decodeLenght = (writeLen >= KLENGTH) ? NLENGTH : writeLen + NPAR;
 			printf("WL: %d| DL: %d| 9: %d|\n", writeLen, decodeLenght,15-NPAR);
-
+			printf("aux: %s|\n",aux);
+//			printf("sux: %s|\n",deshuffle(aux));
+			if(decodeLenght == NLENGTH)
+				shuffle(aux);
+			printf("aux: %s|\n",aux);
 			decode_data(aux, decodeLenght);
 			//###################################
 			/* check if syndrome is all zeros */
@@ -67,3 +75,4 @@ main (int argc, char *argv[])
 	free(source);
 	exit(EXIT_SUCCESS);
 }
+
