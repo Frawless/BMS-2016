@@ -129,8 +129,39 @@ unsigned char *fillBuffer(FILE *fp)
 	}
 }
 
+/* Function for get new file size */
 int get_new_size(int size)
 {
 	int tmp = size%KLENGTH;
-	return(tmp > 0 ? (((size/KLENGTH)*NLENGTH)+tmp+NPAR+1) : ((size/KLENGTH)*NLENGTH));
+	return(tmp > 0 ? (((size/KLENGTH)*NLENGTH)+tmp+NPAR) : ((size/KLENGTH)*NLENGTH));
+}
+
+
+unsigned char *shuffle(unsigned char codeword[])
+{
+//	unsigned char aux_codeword[15];
+	unsigned char* aux_codeword = malloc(sizeof(unsigned char) * (15+1));
+	
+	aux_codeword[1] = codeword[14];
+	aux_codeword[4] = codeword[13];
+	aux_codeword[6] = codeword[12];
+	aux_codeword[9] = codeword[11];
+	aux_codeword[11] = codeword[10];
+	aux_codeword[14] = codeword[9];
+	aux_codeword[0] = codeword[8];
+	aux_codeword[2] = codeword[7];
+	aux_codeword[3] = codeword[6];
+	aux_codeword[5] = codeword[5];
+	aux_codeword[7] = codeword[4];
+	aux_codeword[8] = codeword[3];
+	aux_codeword[10] = codeword[2];
+	aux_codeword[12] = codeword[1];
+	aux_codeword[13] = codeword[0];
+	
+//	for(int x = 0; x < NLENGTH; x++)
+//	{
+//		aux_codeword[x] = codeword[x+1];
+//	}
+	
+	return aux_codeword;
 }

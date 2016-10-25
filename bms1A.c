@@ -69,9 +69,15 @@ main (int argc, char *argv[])
 	
 	/* Parse input file to 15/9b */
 	unsigned char *aux = malloc(sizeof(char) * (len+1));
+	memset(aux,0,sizeof(char) * (KLENGTH+1));
+	/* Pole pro celý soubor */
+	unsigned char *shuffleArray = malloc(sizeof(char) * (get_new_size(len)));
+	memset(aux,0,sizeof(char) * (NLENGTH+1));
+	
 	printf("NewSize: %d\n",get_new_size(len));
 	printf("LEN: %\n",len);
-	memset(aux,0,sizeof(char) * (KLENGTH+1));	
+	int move = 0;
+		
 	unsigned int byteCnt = 0;
 	for(int x = 0; x < len; x++)
 	{
@@ -79,28 +85,40 @@ main (int argc, char *argv[])
 		if(byteCnt == sizeof(aux))
 		{
 			encode_data(aux, sizeof(aux)+1, codeword);
-
-			fwrite(codeword,sizeof(char),NLENGTH,outputFile);
-			memset(aux,0,sizeof(char) * (KLENGTH+1));
-			memset(codeword,0,sizeof(char) * NLENGTH);
+//			fwrite(codeword,sizeof(char),NLENGTH,outputFile);
+			memmove(shuffleArray+move,shuffle(codeword),NLENGTH);
+//
 			byteCnt = 0;
+			//shuffle(codeword);
 			printf("cod-> |%s|\n",codeword);
+			move += NLENGTH;
+			
+			memset(aux,0,sizeof(char) * (KLENGTH+1));
+			memset(codeword,0,sizeof(char) * NLENGTH);			
 		}
 		else
 		{
-			printf("auxByte: |%c|\n",aux[byteCnt]);
 			byteCnt++;		
 		}
 	}
 	// Zbytek v aux je také třeba zakódovat (poslední rámec)
 	if(byteCnt != 0)
 	{
-		printf("size of aux: %ld\n",byteCnt);
-		printf("aux: %s\n",aux);
 		encode_data(aux, byteCnt, codeword);  //NEKODUHE SE
+		memmove(shuffleArray+move,codeword,byteCnt+NPAR);
 		
 		printf("cod-> |%s|\n",codeword);
-		fwrite(codeword,sizeof(char),byteCnt+NPAR,outputFile);
+//		fwrite(codeword,sizeof(char),byteCnt+NPAR,outputFile);
+	}
+	
+	/** ###################### */
+	unsigned char L1[] = "abcdefghchijklmnopqrstuvwxyz";
+	unsigned char L2[32];
+	unsigned char L2[32];
+	
+	for(int i = 0; i < 32; i++)
+	{
+		printf("%c",L1[i]);
 	}
 	
 //###################################################

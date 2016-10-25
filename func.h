@@ -63,6 +63,8 @@ unsigned char *fillBuffer(FILE *fp);
 /* Function for get new file size */
 int get_new_size(int size);
 
+unsigned char *shuffle(unsigned char codeword[]);
+
 #ifdef __cplusplus
 }
 #endif
