@@ -25,12 +25,12 @@ extern "C" {
 #include "lib/ecc.h"
  
 /* Lenght of codeword */
-#define NLENGTH	15	
-#define KLENGTH 9
-#define ROW		10
-#define COL		10
+#define NLENGTH	94
+#define KLENGTH 54
+#define ROW		(4700/54)
+#define COL		94
 /* Codeword */
-unsigned char codeword[16];
+unsigned char codeword[NLENGTH+1];
 
 /* Enumerator for Err codes */
 enum code

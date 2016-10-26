@@ -72,6 +72,7 @@ main (int argc, char *argv[])
 	memset(aux,0,sizeof(char) * (KLENGTH+1));
 	/* Pole pro celý soubor */
 	long unsigned int newSize = get_new_size(len);
+	printf("NewSIze: %ld\n",newSize);
 	unsigned char encodedMsg[newSize+1];
 	unsigned char shufledEncodedMsg[newSize+1];
 	memset(aux,0,sizeof(char) * (NLENGTH+1));
@@ -81,14 +82,30 @@ main (int argc, char *argv[])
 	unsigned int byteCnt = 0;
 	for(int x = 0; x < len; x++)
 	{
+//		printf("byteCnt: %d\n", byteCnt);
 		aux[byteCnt] = source[x];
-		if(byteCnt == sizeof(aux))
+		if(byteCnt == KLENGTH-1)
 		{
-			encode_data(aux, sizeof(aux)+1, codeword);
+			//printf("|%.*s|\n", 3, "123456789");
+			
+//			printf("auxC: |%s|\n",aux);
+//			printf("auxLEN: %ld",sizeof(aux));
+			encode_data(aux, KLENGTH, codeword);
 //			fwrite(codeword,sizeof(char),NLENGTH,outputFile);
+			for(int x = 0; x < NLENGTH; x++)
+			{
+				printf("x:%d:%c",x,codeword[x]);
+			}
+			printf("|\n");
 			printf("codeword: |%s|\n",codeword);
-			shuffle(codeword);
+//			shuffle(codeword);
 			printf("shufword: |%s|\n",codeword);
+			printf("byteCnt+par: %d\n",byteCnt+NPAR);
+			for(int x = 0; x < byteCnt+NPAR+1; x++)
+			{
+				printf("%c",codeword[x]);
+			}
+			printf("\n");			
 //			shuffle(codeword);
 //			printf("reshword: |%s|\n",codeword);
 			memmove(encodedMsg+move,codeword,NLENGTH);
@@ -107,25 +124,32 @@ main (int argc, char *argv[])
 	// Zbytek v aux je také třeba zakódovat (poslední rámec)
 	if(byteCnt != 0)
 	{
+		printf("codeword: |%s|\n",aux);
 		encode_data(aux, byteCnt, codeword);  //NEKODUHE SE
 		//shuffle(codeword);
+		for(int x = 0; x < byteCnt+NPAR; x++)
+		{
+			printf("%c",codeword[x]);
+		}		
 		memmove(encodedMsg+move,codeword,byteCnt+NPAR);
 		
 //		fwrite(codeword,sizeof(char),byteCnt+NPAR,outputFile);
 	}
 	
-	free(aux);
-	free(source);
+
 	/** INTERELAVING testy# */
 //	unsigned char L1[] = "abcdefghijklmnopqrstuvwxyz";
 //	deinterleaving(interleaving(L1,26),26);
-	interleaving(encodedMsg,shufledEncodedMsg,newSize);
+	printf("v prdeli\n");
+	interleaving(encodedMsg,shufledEncodedMsg,newSize+1);
 	printf("test\n");
 	
 	fwrite(shufledEncodedMsg,sizeof(char), newSize, outputFile);
 	
 	printf("\nZapsáno!\n");
 	fclose(outputFile);
+//	free(aux);
+	free(source);	
 
 	exit(EXIT_SUCCESS);
 }
