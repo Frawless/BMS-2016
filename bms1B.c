@@ -25,8 +25,8 @@ main (int argc, char *argv[])
 	}
 	printf("\n");
 	unsigned char encodedMsg[len+1];
-	printf("len: %d\n",len);
-	deinterleaving(source, encodedMsg, len+1);
+	printf("len: %ld\n",len);
+	deinterleaving(source, encodedMsg, len);
 	printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n\n\n\n");
 	for(int x = 0; x < len; x++)
 	{
@@ -42,8 +42,6 @@ main (int argc, char *argv[])
 	memset(aux,0,sizeof(char) * (NLENGTH+1));	
 	int blocks = 0;
 	
-	
-	
 	for(int x = 0; x < len; x++)
 	{
 		if (x%NLENGTH == 0)
@@ -54,32 +52,33 @@ main (int argc, char *argv[])
 			memset(aux,0,sizeof(char) * (NLENGTH+1));
 			memcpy(aux,&encodedMsg[x],NLENGTH);
 //			printf("(%d-%d): %s\n",x,x+15-1,aux);
-			printf("NL: %d| KL: %d\n",NLENGTH,KLENGTH);
+//			printf("NL: %d| KL: %d\n",NLENGTH,KLENGTH);
 			int decodeLenght = (writeLen >= KLENGTH) ? NLENGTH : writeLen + NPAR;
-			printf("WL: %d| DL: %d| 9: %d|\n", writeLen, decodeLenght,NLENGTH-NPAR);
-			printf("aux: %s|\n",aux);
-			for(int u = 0; u < NLENGTH; u++)
-			{
-				printf("%c",aux[u]);
-			}
-			printf("|\n");			
-			for(int u = 0; u < NLENGTH; u++)
-			{
-				printf("x:%d:%c",u,aux[u]);
-			}
-			printf("|\n");
+//			printf("WL: %d| DL: %d| 9: %d|\n", writeLen, decodeLenght,NLENGTH-NPAR);
+//			printf("aux: %s|\n",aux);
+//			for(int u = 0; u < NLENGTH; u++)
+//			{
+//				printf("%c",aux[u]);
+//			}
+//			printf("|\n");			
+//			for(int u = 0; u < NLENGTH; u++)
+//			{
+//				printf("x:%d:%c",u,aux[u]);
+//			}
+//			printf("|\n");
 //			aux[4] = '1';
-			printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+//			printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
 //			printf("sux: %s|\n",deshuffle(aux));
 //			if(decodeLenght == NLENGTH)
 //				shuffle(aux);
-			printf("sux: %s|\n",aux);
+//			shuffle(aux);
+//			printf("sux: %s|\n",aux);
 			decode_data(aux, decodeLenght);
-			for(int u = 0; u < NLENGTH; u++)
-			{
-				printf("x:%d:%c",u,aux[u]);
-			}	
-			printf("|\n");
+//			for(int u = 0; u < NLENGTH; u++)
+//			{
+//				printf("x:%d:%c",u,aux[u]);
+//			}	
+//			printf("|\n");
 			//8hQRd1KkWB5nBbihg7GNUDv1OBtc
 			//###################################
 			/* check if syndrome is all zeros */

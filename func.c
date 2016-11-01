@@ -133,11 +133,16 @@ unsigned char *fillBuffer(FILE *fp)
 long unsigned int get_new_size(int size)
 {
 	int tmp = size%KLENGTH;
-	printf("tmp: %d\n",tmp);
-	printf("tmp: %d\n",size);
-	printf("size: %d\n",size/KLENGTH);
-	printf("tmp: %d\n",tmp+NPAR);
-	return(tmp > 0 ? (((size/KLENGTH)*NLENGTH)+tmp+NPAR) : ((size/KLENGTH)*NLENGTH));
+	int aux = size/KLENGTH;
+//	printf("tmp: %d\n",tmp);
+//	printf("size: %d\n",size);
+//	printf("size/klength: %d\n",size/KLENGTH);
+//	printf("tmp+npar: %d\n",tmp+NPAR);
+//	printf("velikost: %d\n",((size/KLENGTH)*NLENGTH)+tmp+NPAR);
+	if(aux == 0)
+		return (tmp+NPAR);
+	else
+		return(tmp > 0 ? (((size/KLENGTH)*NLENGTH)+tmp+NPAR) : ((size/KLENGTH)*NLENGTH));
 }
 
 
@@ -156,57 +161,126 @@ void shuffle(unsigned char codeword[])
 
 void interleaving(unsigned char L1[], unsigned char L2[],long int size)
 {
-//	printf("L1: %s\b",L1
-	printf("size: %d\n",size);
-	printf("podm: %d\n",size/(ROW*COL));
-	
+	unsigned char L_tmp[size];
+	printf("size: %ld\n",size);
+	printf("IN: %s|\n",L1);
+	#define ROW 255
+	#define COL 3
+	unsigned char L_aux[ROW*COL];
 	int z = 0;
 	int h = 0;
 	for(int k = 0; k < size/(ROW*COL); k++)
 	{	
-//		printf("k: %d\n", k);
 		for(int i = 0; i < ROW*COL; i++)
 		{			
-//			printf("%c",L1[(z%row)*col+z/row+p]);k/row*(row-1)
-//			printf("%c",shuffleArray[(z%row)*col+z/row+k*col*(row-1)]);
-//			printf("%d\n",(z%row)*col+z/row+k*col*(row-1));
 //			printf("%d%c ",z, L1[(z%COL)*ROW+(z/COL)+ (ROW*k)*(COL-1)]);
-			L2[z] = L1[(z%COL)*ROW+(z/COL)+ (ROW*k)*(COL-1)];
+			L_tmp[z] = L1[(z%COL)*ROW+(z/COL)+ (ROW*k)*(COL-1)];
 			z++;
-			h++;
+			
 //			if((i+1)%COL == 0)
 //				printf("\n");
+			 
 		}	
-//		printf("\n");
 	}
 	for(int p = z; p < size; p++)
 	{
-//		printf("%c",shuffleArray[p]);
-//		printf("%c",L1[p]);
-		L2[p] = L1[p];
+//		L2[p] = L1[(p%COL)*ROW+(p/COL)+ (ROW*(k+1))*(COL-1)];
+		L_tmp[p] = L1[p]; //původní
+		z++;
 	}
-//	printf("\n\n%s\n\n",L2);
-//	printf("L2: %s|\n",L2);
+	z--;
+	printf("Ltmp: %s|\n",L_tmp);
+	printf("%d\n",z);
+	z -= ROW*COL;
+	for(int p = z, x =0; p < size; p++,x++)
+	{
+		L_aux[x] = L_tmp[p]; 
+	}
+	//z = 0;
+	printf("Můžu se nat o vysrat|");
+	for(int x = 0; x < 24; x++)
+	{
+		printf("%c",L_aux[x]);
+	}
+	printf("\n");	
+
+	
+	for(int x = 0; x < ROW*COL; x++)
+	{
+		printf("Na: %d vkládám: %c| z  %d:\n",x,L_aux[(x%COL)*ROW+(x/COL)+ (ROW*0*(COL-1))],(x%ROW)*COL+(x/ROW));
+		L2[x] = L_aux[(x%COL)*ROW+(x/COL)+ (ROW*0)*(COL-1)];
+		h++;
+//		z++;
+	}
+	printf("L2: |%s|\n",L2);
+	printf("|");
+	for(int x = 0; x < 24; x++)
+	{
+		printf("%c",L2[x]);
+	}
+	printf("\n");
+	
+	for(int y = size-ROW*COL; y != 0; y--)
+	{
+		printf("Na: %d vkládám: %c| z  %d:\n",h, L_tmp[z],z);
+		L2[h] = L_tmp[z];
+		h++;
+		z--;
+	}
+	printf("H: %d\n",h);
+	printf("L2: |%s|\n",L2);
+	printf("|");
+	for(int x = 0; x < 44; x++)
+	{
+		printf("%c",L2[x]);
+	}
+	printf("\n");	
 }
 
 void deinterleaving(unsigned char L1[], unsigned char L2[],long int size)
 {
-//	printf("L1: %s\b",L1);
-	
-	int z = 0;
+	printf("IN: %s|\n",L1);
+	printf("size: %ld\n",size);
+	unsigned char L_tmp[size];
+	#define ROW 255
+	#define COL 3
+	int z = size-1-ROW*COL;
 	int h = 0;
+	
+	for(int x = 0; x < ROW*COL; x++)
+	{
+		printf("X: %d\n",x);
+		printf("Na: %d vkládám: %c| z  %d:\n",z,L1[(x%ROW)*COL+(x/ROW)+ (COL*0)*(ROW-1)],(x%ROW)*COL+(x/ROW)+ (COL*0)*(ROW-1));
+		L_tmp[z] = L1[(x%ROW)*COL+(x/ROW)+ (COL*0)*(ROW-1)];
+		h++;
+		z++;
+	}
+	printf("Z: %d\n",z);
+	
+	for(int y = size-1-h, j = 0; y >= 0; j++, y--)
+	{
+		printf("Na: %d vkládám: %c| z  %d:\n",z,L1[h],h);
+		L_tmp[y] = L1[h];
+		h++;
+		z++;
+	}
+	printf("Poprask!\n");
+	for(int x = 0; x < 44; x++)
+	{
+		printf("%c",L_tmp[x]);
+	}
+	printf("\n");	
+	z = 0;
+	printf("Z: %d\n",z);
+	
+	
 	for(int k = 0; k < size/(ROW*COL); k++)
 	{	
-//		printf("k: %d\n", k);
 		for(int i = 0; i < ROW*COL; i++)
 		{			
-//			printf("%c",L1[(z%row)*col+z/row+p]);k/row*(row-1)
-//			printf("%c",shuffleArray[(z%row)*col+z/row+k*col*(row-1)]);
-//			printf("%d\n",(z%row)*col+z/row+k*col*(row-1));
 //			printf("%d%c ",z, L1[(z%COL)*ROW+(z/COL)+ (ROW*k)*(COL-1)]);
-			L2[z] = L1[(z%ROW)*COL+(z/ROW)+ (COL*k)*(ROW-1)];
+			L2[z] = L_tmp[(z%ROW)*COL+(z/ROW)+ (COL*k)*(ROW-1)];
 			z++;
-			h++;
 //			if((i+1)%COL == 0)
 //				printf("\n");
 		}	
@@ -214,16 +288,19 @@ void deinterleaving(unsigned char L1[], unsigned char L2[],long int size)
 	}
 	for(int p = z; p < size; p++)
 	{
-//		printf("%c",shuffleArray[p]);
-//		printf("%c",L1[p]);
-		L2[p] = L1[p];
+//		L2[p] = L1[(p%ROW)*COL+(p/ROW)+ (COL*(k+1))*(ROW-1)];
+		L2[p] = L_tmp[p];		// původní
+		z++;
 	}
-//	printf("\n\n%s\n\n",L2);
-//	printf("L2: %s\n",L2);
-	printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n\n\n\n");
-	for(int x = 0; x < size; x++)
+	printf("Ltmp: %s|\n",L_tmp);
+	
+	printf("Zadek!\n");
+	for(int x = 0; x < 44; x++)
 	{
 		printf("%c",L2[x]);
 	}
-	printf("|%.*s|\n", size, L2);
+	printf("\n");	
+	
+	z--;
+
 }

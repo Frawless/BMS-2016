@@ -66,16 +66,20 @@ main (int argc, char *argv[])
 	
 	/* RScode library init */
 	initialize_ecc();
-	
+	printf("Po inicializaci\n");
 	/* Parse input file to 15/9b */
 	unsigned char *aux = malloc(sizeof(char) * (len+1));
-	memset(aux,0,sizeof(char) * (KLENGTH+1));
+	printf("Len: %ld\n",len);
+	if(len < KLENGTH)
+		memset(aux,0,sizeof(char) * (len+1));
+	else
+		memset(aux,0,sizeof(char) * (KLENGTH+1));
 	/* Pole pro celý soubor */
 	long unsigned int newSize = get_new_size(len);
 	printf("NewSIze: %ld\n",newSize);
 	unsigned char encodedMsg[newSize+1];
 	unsigned char shufledEncodedMsg[newSize+1];
-	memset(aux,0,sizeof(char) * (NLENGTH+1));
+	//memset(aux,0,sizeof(char) * (NLENGTH+1));
 	
 	int move = 0;
 		
@@ -86,26 +90,7 @@ main (int argc, char *argv[])
 		aux[byteCnt] = source[x];
 		if(byteCnt == KLENGTH-1)
 		{
-			//printf("|%.*s|\n", 3, "123456789");
-			
-//			printf("auxC: |%s|\n",aux);
-//			printf("auxLEN: %ld",sizeof(aux));
 			encode_data(aux, KLENGTH, codeword);
-//			fwrite(codeword,sizeof(char),NLENGTH,outputFile);
-			for(int x = 0; x < NLENGTH; x++)
-			{
-				printf("x:%d:%c",x,codeword[x]);
-			}
-			printf("|\n");
-			printf("codeword: |%s|\n",codeword);
-//			shuffle(codeword);
-			printf("shufword: |%s|\n",codeword);
-			printf("byteCnt+par: %d\n",byteCnt+NPAR);
-			for(int x = 0; x < byteCnt+NPAR+1; x++)
-			{
-				printf("%c",codeword[x]);
-			}
-			printf("\n");			
 //			shuffle(codeword);
 //			printf("reshword: |%s|\n",codeword);
 			memmove(encodedMsg+move,codeword,NLENGTH);
@@ -124,31 +109,34 @@ main (int argc, char *argv[])
 	// Zbytek v aux je také třeba zakódovat (poslední rámec)
 	if(byteCnt != 0)
 	{
-		printf("codeword: |%s|\n",aux);
+//		printf("codeword: |%s|\n",aux);
 		encode_data(aux, byteCnt, codeword);  //NEKODUHE SE
-		//shuffle(codeword);
-		for(int x = 0; x < byteCnt+NPAR; x++)
-		{
-			printf("%c",codeword[x]);
-		}		
+//		shuffle(codeword);
+//		for(int x = 0; x < byteCnt+NPAR; x++)
+//		{
+//			printf("%c",codeword[x]);
+//		}		
 		memmove(encodedMsg+move,codeword,byteCnt+NPAR);
 		
-//		fwrite(codeword,sizeof(char),byteCnt+NPAR,outputFile);
 	}
 	
 
 	/** INTERELAVING testy# */
 //	unsigned char L1[] = "abcdefghijklmnopqrstuvwxyz";
 //	deinterleaving(interleaving(L1,26),26);
-	printf("v prdeli\n");
-	interleaving(encodedMsg,shufledEncodedMsg,newSize+1);
-	printf("test\n");
+	interleaving(encodedMsg,shufledEncodedMsg,newSize);
+	printf("Shuffled:\n");
+	for(int x = 0; x < 43; x++)
+	{
+		printf("%c",shufledEncodedMsg[x]);
+	}
+	printf("\n");	
 	
 	fwrite(shufledEncodedMsg,sizeof(char), newSize, outputFile);
 	
 	printf("\nZapsáno!\n");
 	fclose(outputFile);
-//	free(aux);
+	free(aux);
 	free(source);	
 
 	exit(EXIT_SUCCESS);

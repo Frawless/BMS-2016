@@ -25,10 +25,10 @@ extern "C" {
 #include "lib/ecc.h"
  
 /* Lenght of codeword */
-#define NLENGTH	94
-#define KLENGTH 54
-#define ROW		(4700/54)
-#define COL		94
+#define NLENGTH	(KLENGTH+NPAR)
+#define KLENGTH 147
+//#define ROW		15
+//#define COL		(888/9)
 /* Codeword */
 unsigned char codeword[NLENGTH+1];
 
