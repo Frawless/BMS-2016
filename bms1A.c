@@ -92,7 +92,6 @@ main (int argc, char *argv[])
 		{
 			encode_data(aux, KLENGTH, codeword);
 //			shuffle(codeword);
-//			printf("reshword: |%s|\n",codeword);
 			memmove(encodedMsg+move,codeword,NLENGTH);
 //
 			byteCnt = 0;
@@ -109,29 +108,12 @@ main (int argc, char *argv[])
 	// Zbytek v aux je také třeba zakódovat (poslední rámec)
 	if(byteCnt != 0)
 	{
-//		printf("codeword: |%s|\n",aux);
 		encode_data(aux, byteCnt, codeword);  //NEKODUHE SE
-//		shuffle(codeword);
-//		for(int x = 0; x < byteCnt+NPAR; x++)
-//		{
-//			printf("%c",codeword[x]);
-//		}		
 		memmove(encodedMsg+move,codeword,byteCnt+NPAR);
-		
 	}
-	
 
-	/** INTERELAVING testy# */
-//	unsigned char L1[] = "abcdefghijklmnopqrstuvwxyz";
-//	deinterleaving(interleaving(L1,26),26);
+	/** INTERELAVING */
 	interleaving(encodedMsg,shufledEncodedMsg,newSize);
-	printf("Shuffled:\n");
-	for(int x = 0; x < 43; x++)
-	{
-		printf("%c",shufledEncodedMsg[x]);
-	}
-	printf("\n");	
-	
 	fwrite(shufledEncodedMsg,sizeof(char), newSize, outputFile);
 	
 	printf("\nZapsáno!\n");

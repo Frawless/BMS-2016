@@ -161,146 +161,115 @@ void shuffle(unsigned char codeword[])
 
 void interleaving(unsigned char L1[], unsigned char L2[],long int size)
 {
-	unsigned char L_tmp[size];
-	printf("size: %ld\n",size);
-	printf("IN: %s|\n",L1);
 	#define ROW 255
-	#define COL 3
-	unsigned char L_aux[ROW*COL];
+	#define COL (size/255)
+
 	int z = 0;
-	int h = 0;
+//	printf("\nvstup L1: %.*s\n",size,L1);
 	for(int k = 0; k < size/(ROW*COL); k++)
 	{	
-		for(int i = 0; i < ROW*COL; i++)
-		{			
-//			printf("%d%c ",z, L1[(z%COL)*ROW+(z/COL)+ (ROW*k)*(COL-1)]);
-			L_tmp[z] = L1[(z%COL)*ROW+(z/COL)+ (ROW*k)*(COL-1)];
-			z++;
-			
-//			if((i+1)%COL == 0)
-//				printf("\n");
-			 
-		}	
+//		printf("k: %d\n",k);
+		for(int i = 0; i < ROW*COL; i++, z++)
+		{
+			L2[z] = L1[(z%COL)*ROW+(z/COL)+ (ROW*k)*(COL-1)];	
+		}			
 	}
-	for(int p = z; p < size; p++)
+	
+//	printf("\nprvni kodovani: %.*s\n",size,L2);
+	
+	
+	if(size%(ROW*COL) != 0)
 	{
-//		L2[p] = L1[(p%COL)*ROW+(p/COL)+ (ROW*(k+1))*(COL-1)];
-		L_tmp[p] = L1[p]; //původní
-		z++;
-	}
-	z--;
-	printf("Ltmp: %s|\n",L_tmp);
-	printf("%d\n",z);
-	z -= ROW*COL;
-	for(int p = z, x =0; p < size; p++,x++)
-	{
-		L_aux[x] = L_tmp[p]; 
-	}
-	//z = 0;
-	printf("Můžu se nat o vysrat|");
-	for(int x = 0; x < 24; x++)
-	{
-		printf("%c",L_aux[x]);
-	}
-	printf("\n");	
+		if (size > (ROW*COL))
+		{
+			int offset = size-ROW*COL;
 
-	
-	for(int x = 0; x < ROW*COL; x++)
-	{
-		printf("Na: %d vkládám: %c| z  %d:\n",x,L_aux[(x%COL)*ROW+(x/COL)+ (ROW*0*(COL-1))],(x%ROW)*COL+(x/ROW));
-		L2[x] = L_aux[(x%COL)*ROW+(x/COL)+ (ROW*0)*(COL-1)];
-		h++;
-//		z++;
+			for(int i = 0, k = offset; i < ROW*COL-size%(ROW*COL); i++, k++)
+			{
+				L1[k] = L2[k];
+			}
+			
+			//################################################
+			// Prohození pořádí
+			for(int q = 0; q < ROW*COL; q++)
+			{
+				char tmp = L1[q+offset];
+				L1[q+offset] = L1[size-q-1];
+				L1[size-q-1] = tmp;
+				
+			}
+			//################################################
+
+//			printf("\npo presun do L1: %.*s\n",size,L1);		
+
+			for(int k = 0; k < size/(ROW*COL); k++)
+			{	
+				for(int z = 0; z < ROW*COL; z++)
+					L2[z+offset] = L1[offset+(z%COL)*ROW+(z/COL)];
+			}
+		}
+		else
+		{
+			for(int i = 0; i < size; i++)
+				L2[i] = L1[i];
+		}		
 	}
-	printf("L2: |%s|\n",L2);
-	printf("|");
-	for(int x = 0; x < 24; x++)
-	{
-		printf("%c",L2[x]);
-	}
-	printf("\n");
-	
-	for(int y = size-ROW*COL; y != 0; y--)
-	{
-		printf("Na: %d vkládám: %c| z  %d:\n",h, L_tmp[z],z);
-		L2[h] = L_tmp[z];
-		h++;
-		z--;
-	}
-	printf("H: %d\n",h);
-	printf("L2: |%s|\n",L2);
-	printf("|");
-	for(int x = 0; x < 44; x++)
-	{
-		printf("%c",L2[x]);
-	}
-	printf("\n");	
 }
 
 void deinterleaving(unsigned char L1[], unsigned char L2[],long int size)
 {
-	printf("IN: %s|\n",L1);
-	printf("size: %ld\n",size);
-	unsigned char L_tmp[size];
 	#define ROW 255
-	#define COL 3
-	int z = size-1-ROW*COL;
-	int h = 0;
+	#define COL (size/255)
 	
-	for(int x = 0; x < ROW*COL; x++)
-	{
-		printf("X: %d\n",x);
-		printf("Na: %d vkládám: %c| z  %d:\n",z,L1[(x%ROW)*COL+(x/ROW)+ (COL*0)*(ROW-1)],(x%ROW)*COL+(x/ROW)+ (COL*0)*(ROW-1));
-		L_tmp[z] = L1[(x%ROW)*COL+(x/ROW)+ (COL*0)*(ROW-1)];
-		h++;
-		z++;
-	}
-	printf("Z: %d\n",z);
+	printf("soubor 2============================\n");
+//	printf("\nvstup L1: %.*s\n",size,L1);
 	
-	for(int y = size-1-h, j = 0; y >= 0; j++, y--)
+	if(size%(ROW*COL) != 0)
 	{
-		printf("Na: %d vkládám: %c| z  %d:\n",z,L1[h],h);
-		L_tmp[y] = L1[h];
-		h++;
-		z++;
-	}
-	printf("Poprask!\n");
-	for(int x = 0; x < 44; x++)
-	{
-		printf("%c",L_tmp[x]);
-	}
-	printf("\n");	
-	z = 0;
-	printf("Z: %d\n",z);
+		if (size > (ROW*COL))
+		{
+			int offset = size-ROW*COL;
+			
+			//################################################
+			// Prohození pořádí
+			for(int q = 0; q < ROW*COL; q++)
+			{
+				char tmp = L1[q+offset];
+				L1[q+offset] = L1[size-q-1];
+				L1[size-q-1] = tmp;
+				
+			}
+			//################################################			
+
+			for(int k = 0; k < size/(ROW*COL); k++)
+			{	
+				for(int z = 0; z < ROW*COL; z++)
+					L2[z+offset] = L1[offset+(z%ROW)*COL+(z/ROW)];
+			}
+			
+			for(int i = 0, k = offset; i < ROW*COL-size%(ROW*COL); i++, k++)
+			{
+				L1[k] = L2[k];
+			}
+
+//			printf("\npo presun do L1: %.*s\n",size,L1);			
+			
+		}
+		else
+		{
+			for(int i = 0; i < size; i++)
+				L2[i] = L1[i];
+		}		
+	}	
 	
+	int z = 0;
 	
 	for(int k = 0; k < size/(ROW*COL); k++)
 	{	
-		for(int i = 0; i < ROW*COL; i++)
-		{			
-//			printf("%d%c ",z, L1[(z%COL)*ROW+(z/COL)+ (ROW*k)*(COL-1)]);
-			L2[z] = L_tmp[(z%ROW)*COL+(z/ROW)+ (COL*k)*(ROW-1)];
-			z++;
-//			if((i+1)%COL == 0)
-//				printf("\n");
-		}	
-//		printf("\n");
+//		printf("k: %d\n",k);
+		for(int i = 0; i < ROW*COL; i++, z++)
+		{
+			L2[z] = L1[(z%ROW)*COL+(z/ROW)+ (COL*k)*(ROW-1)];	
+		}			
 	}
-	for(int p = z; p < size; p++)
-	{
-//		L2[p] = L1[(p%ROW)*COL+(p/ROW)+ (COL*(k+1))*(ROW-1)];
-		L2[p] = L_tmp[p];		// původní
-		z++;
-	}
-	printf("Ltmp: %s|\n",L_tmp);
-	
-	printf("Zadek!\n");
-	for(int x = 0; x < 44; x++)
-	{
-		printf("%c",L2[x]);
-	}
-	printf("\n");	
-	
-	z--;
-
 }
