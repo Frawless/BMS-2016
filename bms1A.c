@@ -1,122 +1,85 @@
-/* Example use of Reed-Solomon library 
- *
- * Copyright Henry Minsky (hqm@alum.mit.edu) 1991-2009
- *
- * This software library is licensed under terms of the GNU GENERAL
- * PUBLIC LICENSE
- *
- * RSCODE is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * RSCODE is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Rscode.  If not, see <http://www.gnu.org/licenses/>.
-
- * Commercial licensing is available under a separate license, please
- * contact author for details.
- *
- * This same code demonstrates the use of the encodier and 
- * decoder/error-correction routines. 
- *
- * We are assuming we have at least four bytes of parity (NPAR >= 4).
- * 
- * This gives us the ability to correct up to two errors, or 
- * four erasures. 
- *
- * In general, with E errors, and K erasures, you will need
- * 2E + K bytes of parity to be able to correct the codeword
- * back to recover the original message data.
- *
- * You could say that each error 'consumes' two bytes of the parity,
- * whereas each erasure 'consumes' one byte.
- *
- * Thus, as demonstrated below, we can inject one error (location unknown)
- * and two erasures (with their locations specified) and the 
- * error-correction routine will be able to correct the codeword
- * back to the original message.
- * */
+/************************************************
+*	 Projekt: 	Projekt č. 1 do předmětu BMS   * 
+*	 Autor:		Jakub Stejskal <xstejs24>	   *
+*	 Nazev souboru: 	bms1A				   *
+************************************************/
  
 #include "func.h"
 
-
-int
-main (int argc, char *argv[])
+/**
+ * Main
+ * @param argc počet vstupních argumentů
+ * @param argv pole vstupních argumentů
+ * @return návratová hodnota programu
+ */
+int main (int argc, char *argv[])
 {
-	unsigned char *source = NULL;		// buffer for file
-	/* Argument exist test*/
-	check_args(argc);
+	/* Buffer pro vstup */
+	unsigned char *source = NULL;
+	/* Kontrola argumentů */
+	checkArgs(argc);
 	
+	/* Kontrola vstupního souboru a jeho otevření */
 	FILE *fp = fopen (argv[1], "r");
-	/* Fileopen test*/
-	check_inputFile(fp);
+	checkInputFile(fp);
 	
-	/* Open/create output file*/
+	/* Kontrola existence výstupního souboru a jeho otevření */
 	FILE *outputFile = fopen(concat(argv[1],".out"),"wb");
-	check_outputFile(outputFile);	
+	checkOutputFile(outputFile);	
 		 
+	/* Naplnění bufferu vstupním souborem a zjištění velikosti vstupu*/
 	source = fillBuffer(fp);
-	long unsigned int len = get_file_size(fp);
+	long unsigned int len = getInputSize(fp);
 	fclose(fp);
 	
-	/* RScode library init */
+	/* Inicializace knihovny RScode */
 	initialize_ecc();
-	printf("Po inicializaci\n");
-	/* Parse input file to 15/9b */
+
+	/* Začátek zpracování vstupu */
 	unsigned char *aux = malloc(sizeof(char) * (len+1));
-	printf("Len: %ld\n",len);
-	if(len < KLENGTH)
+	/* Alokace potřebného místa na základě velikosti souboru a délce kódového slova */
+	if(len < KLENGTH)		
 		memset(aux,0,sizeof(char) * (len+1));
 	else
 		memset(aux,0,sizeof(char) * (KLENGTH+1));
-	/* Pole pro celý soubor */
-	long unsigned int newSize = get_new_size(len);
-	printf("NewSIze: %ld\n",newSize);
+	
+	long unsigned int newSize = getOutputSize(len);
+	/* Vytvoření polí pro zakódovaný a proložený vstup */
 	unsigned char encodedMsg[newSize+1];
 	unsigned char shufledEncodedMsg[newSize+1];
 	//memset(aux,0,sizeof(char) * (NLENGTH+1));
 	
-	int move = 0;
-		
-	unsigned int byteCnt = 0;
+	int move = 0;	/* Krok pro posun v paměti */
+	unsigned int byteCnt = 0;	/* Čítač projdutých bajtů */
 	for(int x = 0; x < len; x++)
 	{
-//		printf("byteCnt: %d\n", byteCnt);
 		aux[byteCnt] = source[x];
 		if(byteCnt == KLENGTH-1)
 		{
 			encode_data(aux, KLENGTH, codeword);
 //			shuffle(codeword);
 			memmove(encodedMsg+move,codeword,NLENGTH);
-//
+			/* Vynulování čítače bajtů a zvýšení kroku */
 			byteCnt = 0;
 			move += NLENGTH;
-			
+			/* Vymazání pomocných polí */
 			memset(aux,0,sizeof(char) * (KLENGTH+1));
 			memset(codeword,0,sizeof(char) * NLENGTH);			
 		}
 		else
-		{
 			byteCnt++;		
-		}
 	}
-	// Zbytek v aux je také třeba zakódovat (poslední rámec)
 	if(byteCnt != 0)
 	{
-		encode_data(aux, byteCnt, codeword);  //NEKODUHE SE
+		/* Zakódování konce souboru v případě, že velikost vstupu není násobek velikosti kódového slova */
+		encode_data(aux, byteCnt, codeword);
 		memmove(encodedMsg+move,codeword,byteCnt+NPAR);
 	}
 
-	/** INTERELAVING */
+	/* Prokládání a zápis do souboru*/
 	interleaving(encodedMsg,shufledEncodedMsg,newSize);
 	fwrite(shufledEncodedMsg,sizeof(char), newSize, outputFile);
 	
-	printf("\nZapsáno!\n");
 	fclose(outputFile);
 	free(aux);
 	free(source);	

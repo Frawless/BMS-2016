@@ -1,15 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/* 
- * File:   func.h
- * Author: frawless
- *
- * Created on 24. října 2016, 15:24
- */
+/************************************************
+*	 Projekt: 	Projekt č. 1 do předmětu BMS   * 
+*	 Autor:		Jakub Stejskal <xstejs24>	   *
+*	 Nazev souboru: 	func.h				   *
+************************************************/
 
 #ifndef FUNC_H
 #define FUNC_H
@@ -24,15 +17,15 @@ extern "C" {
 #include <stdbool.h>
 #include "lib/ecc.h"
  
-/* Lenght of codeword */
-#define NLENGTH	(KLENGTH+NPAR)
-#define KLENGTH 147
+/* Potřebné délky */
+#define NLENGTH	(KLENGTH+NPAR)		// Délka zakódovaného slova (kódové slovo + parita))
+#define KLENGTH 137					// Délka kódového slova
 //#define ROW		15
 //#define COL		(888/9)
 /* Codeword */
 unsigned char codeword[NLENGTH+1];
 
-/* Enumerator for Err codes */
+/* Enumerátor pro chybové stavy */
 enum code
 {
 	ERR_OK = 0,
@@ -42,35 +35,40 @@ enum code
 	ERR_ELSE
 };
 
-/* Function for print error message */
-void error_msg(int err_code);
-/* Function for test input arguments*/
-void check_args(int argc);
-/* Function for check input file */
-void check_inputFile(FILE *fp);
-/* Function for check output file */
-void check_outputFile(FILE *fp);
-/* Function for concatenate two strings*/
-/* http://stackoverflow.com/questions/8465006/how-to-concatenate-2-strings-in-c */
+/* Funkce pro vypsání chybového hlášení */
+void errorMsg(int err_code);
+/* Funkce pro test vstupních argumentů */
+void checkArgs(int argc);
+/* Funkce pro test existence vstupního souboru */
+void checkInputFile(FILE *fp);
+/* Funkce pro test existence výstupního souboru */
+void checkOutputFile(FILE *fp);
+/* Funkce pro konkatenaci dvou řetězců - převzato:  http://stackoverflow.com/questions/8465006/how-to-concatenate-2-strings-in-c */
 char* concat(const char *s1, const char *s2);
+/* Funkce pro získání velikosti vstupního souboru */
+long unsigned int getInputSize(FILE *fp);
+/* Funkce pro naplnění bufferu vstupem - převzato:  http://stackoverflow.com/questions/2029103/correct-way-to-read-a-text-file-into-a-buffer-in-c */
+unsigned char *fillBuffer(FILE *fp);
+/* Funkce pro zjištění velikosti souboru s redundancí */
+long unsigned int getOutputSize(int size);
+/* Funkce pro prokládání kódových slov */
+void interleaving(unsigned char L1[], unsigned char L2[],long int size);
+/* Funkce pro zvrácení prokládání kódových slov */
+void deinterleaving(unsigned char L1[], unsigned char L2[],long int size);
+/* Funkce pro experimentování s prokládáním uvnitř matice */
+void shuffle(unsigned char codeword[]);
+
+/* Funkce pro opravu chyb -  Knihovna RScode */
 /* Introduce a byte error at LOC */
 void byte_err (int err, int loc, unsigned char *dst);
 /* Pass in location of error (first byte position is
    labeled starting at 1, not 0), and the codeword. */
 void byte_erasure (int loc, unsigned char dst[], int cwsize, int erasures[]);
-/* Function for get input file size */
-long unsigned int get_file_size(FILE *fp);
-/* Function for load bytes from file in buffer */
-unsigned char *fillBuffer(FILE *fp);
-/* Function for get new file size */
-long unsigned int get_new_size(int size);
 
-void shuffle(unsigned char codeword[]);
-void deshuffle(unsigned char codeword[]);
 
-void interleaving(unsigned char L1[], unsigned char L2[],long int size);
 
-void deinterleaving(unsigned char L1[], unsigned char L2[],long int size);
+
+
 
 #ifdef __cplusplus
 }

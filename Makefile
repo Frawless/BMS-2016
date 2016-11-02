@@ -10,10 +10,11 @@ LIB = lib/
 
 VERSION = 1.0
 DIRNAME= SornaEncode
-
+LOGIN = xstejs24
+PACK = *.c *.h Makefile lib/
 
 CC = gcc
-# OPTIMIZE_FLAGS = -O69
+OPTIMIZE_FLAGS = -O69 -std=c99
 DEBUG_FLAGS = -g
 CFLAGS = -Wall -Wstrict-prototypes  $(OPTIMIZE_FLAGS) $(DEBUG_FLAGS) -I..
 LDFLAGS = $(OPTIMIZE_FLAGS) $(DEBUG_FLAGS)
@@ -43,6 +44,10 @@ bms1B: bms1B.o $(LIB)galois.o $(LIB)berlekamp.o $(LIB)crcgen.o $(LIB)rs.o func.o
 clean:
 	rm -f *.o $(LIB)*.o bms1A bms1B libecc.a
 	rm -f *~
+	
+pack: clean
+	rm -f $(LOGIN).zip
+	zip -r $(LOGIN).zip $(PACK)
 
 dist:
 	(cd ..; tar -cvf rscode-$(VERSION).tar $(DIRNAME))

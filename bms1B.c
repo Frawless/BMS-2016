@@ -1,69 +1,73 @@
+/************************************************
+*	 Projekt: 	Projekt č. 1 do předmětu BMS   * 
+*	 Autor:		Jakub Stejskal <xstejs24>	   *
+*	 Nazev souboru: 	bms1b				   *
+************************************************/
+
 #include "func.h"
 
-int
-main (int argc, char *argv[])
+/**
+ * Main
+ * @param argc počet vstupních argumentů
+ * @param argv pole vstupních argumentů
+ * @return návratová hodnota programu
+ */
+int main (int argc, char *argv[])
 {
-	unsigned char *source = NULL;		// buffer for file
-	/* Argument exist test*/
-	check_args(argc);
-	
+	/* Buffer pro vstup */
+	unsigned char *source = NULL;	
+	/* Kontrola argumentů */
+	checkArgs(argc);
+	/* Kontrola vstupního souboru a jeho otevření */
 	FILE *fp = fopen (argv[1], "r");
-	/* Fileopen test*/
-	check_inputFile(fp);
+	checkInputFile(fp);
 	
-	/* Open/create output file*/
+	/* Kontrola existence výstupního souboru a jeho otevření */
 	FILE *outputFile = fopen(concat(argv[1],".ok"),"wb");
-	check_outputFile(outputFile);	
+	checkOutputFile(outputFile);	
 		 
+	/* Naplnění bufferu vstupním souborem a zjištění velikosti vstupu*/
 	source = fillBuffer(fp);
-	long unsigned int len = get_file_size(fp);
+	long unsigned int len = getInputSize(fp);
 	fclose(fp);
 
+	/* Reverzace prokládání vstupního souboru */
 	unsigned char encodedMsg[len+1];
-	printf("len: %ld\n",len);
 	deinterleaving(source, encodedMsg, len);
 	
-	/* RScode library init */
+	/* Inicializace knihovny RScode */
 	initialize_ecc();
 	
-	/* Parse input file to 15/9b */
+	/* Začátek zpracování vstupu */
 	unsigned char *aux = malloc(sizeof(char) * (NLENGTH+1));
-//	printf("size len: %ld\n",sizeof(aux));
 	memset(aux,0,sizeof(char) * (NLENGTH+1));	
-	int blocks = 0;
-	int move = 0;
+	int blocks = 0;	/* Počet zpracovaných bloků */
+	int move = 0;	/* Krok pro posun v paměti */
 	for(int x = 0; x < len; x++)
 	{
 		if (x%NLENGTH == 0)
 		{
+			/* Výpočet délky pro zápis do souboru */
 			int writeLen = (len / NLENGTH <= blocks ? ((len-x)%NLENGTH-NPAR) : KLENGTH);
 			blocks++;
-
 			memset(aux,0,sizeof(char) * (NLENGTH+1));
-			
+			/* Výpočet délky slova pro děkódování */
 			int decodeLenght = (writeLen >= KLENGTH) ? NLENGTH : writeLen + NPAR;
-			
-//			memcpy(aux,&encodedMsg[x],decodeLenght);
-			
 			memmove(aux,encodedMsg+move,decodeLenght);
+			/* Zvýšení kroku pro posun v paměti */
 			move += decodeLenght;
-
+			/* Dekódování vstupních bloků */
 			decode_data(aux, decodeLenght);
 
-			/* check if syndrome is all zeros */
-			if (check_syndrome () != 0) {
-//				printf("KOREKCE!!!!\n");
-			  correct_errors_erasures (aux, 
-						   NLENGTH,
-						   0, 
-						   NULL);
-
-//			  printf("Corrected codeword: |%s|\n", aux);
+			/* Kontrola syndromů pro opravu chyb */
+			if (check_syndrome () != 0) 
+			{
+				/* Oprava chyb */
+				correct_errors_erasures (aux, decodeLenght, 0, NULL);
 			}	
 			fwrite(aux,sizeof(char),writeLen, outputFile);
 		}
 	}
-	
 	fclose(outputFile);
 	free(aux);
 	free(source);
